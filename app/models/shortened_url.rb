@@ -17,6 +17,16 @@ class ShortenedUrl < ActiveRecord::Base
     through: :visits,
     source: :visitor
 
+  has_many :taggings,
+    class_name: "Tagging",
+    foreign_key: :shortened_url_id,
+    primary_key: :id
+
+  has_many :tag_topics,
+    Proc.new { distinct },
+    through: :taggings,
+    source: :tag_topic
+
   def self.random_code
     begin
       code = SecureRandom::urlsafe_base64
@@ -28,7 +38,7 @@ class ShortenedUrl < ActiveRecord::Base
   end
 
   def self.create_for_user_and_long_url!(user, long_url)
-    self.new(long_url: long_url, user_id: user.id, short_url: self.random_code)
+    user.submitted_urls.new(long_url: long_url, short_url: self.random_code)
   end
 
   def num_clicks
@@ -40,7 +50,7 @@ class ShortenedUrl < ActiveRecord::Base
   end
 
   def num_recent_uniques
-     self.visits.where(["created_at > ?", "#{60.minutes.ago}"]).select(:user_id).distinct.count
+     self.visits.where("created_at > ?", 60.minutes.ago).select(:user_id).distinct.count
 
   end
 end
