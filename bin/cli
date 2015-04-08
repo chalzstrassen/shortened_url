@@ -1,0 +1,5 @@
+require 'launchy'
+
+puts "Input your email"
+email = gets.chomp
+cur_user = User.new(email: email)
