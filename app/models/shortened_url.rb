@@ -1,6 +1,12 @@
 class ShortenedUrl < ActiveRecord::Base
   validates :long_url, presence: true
   validates :short_url, uniqueness: true
+
+  belongs_to :submitter,
+    class_name: "User",
+    foreign_key: :user_id,
+    primary_key: :id
+
   def self.random_code
     begin
       code = SecureRandom::urlsafe_base64
